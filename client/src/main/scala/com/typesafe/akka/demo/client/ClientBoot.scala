@@ -4,9 +4,12 @@
 package com.typesafe.akka.demo.client
 
 import akka.actor.SupervisorFactory
-import akka.config.Supervision.SupervisorConfig
 import akka.config.Supervision
+import akka.config.Supervision._
 import akka.http.RootEndpoint
+import akka.config.Config.config
+import akka.actor.Actor._
+import com.typesafe.akka.demo.ClientRegistration
 
 object Client {
   def main(args: Array[String]) {
@@ -35,5 +38,5 @@ class ClientBoot {
   remote.register("clientWorker", clientWorker)
 
   // Call server and ask for work
-  remote.actorFor(serviceId, serverHost, serverPort) ! RegisterClient("clientWorker", clientHost, clientPort)
+  remote.actorFor(serviceId, serverHost, serverPort) ! ClientRegistration("clientWorker", clientHost, clientPort)
 }

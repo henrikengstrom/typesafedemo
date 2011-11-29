@@ -1,0 +1,53 @@
+@(message: String)
+
+@main("Typesafe Raytracer Demo") {
+
+    @helper.javascriptRouter("jsRoutes")(routes.javascript.Application.instruct)
+
+    <script type="text/javascript" charset="utf-8">
+        var statistics = function(stats) {
+            $('#statistics').append('<p>' + stats + '</p>')
+        }
+
+        $("#start").click(function() {
+            jsRoutes.controllers.Application.instruct(('start').val()).ajax({
+                success: function() {}
+            })
+        })
+
+        $("#pause").click(function() {
+            jsRoutes.controllers.Application.instruct(('pause').val()).ajax({
+                success: function() {}
+            })
+        })
+
+        $("#stop").click(function() {
+            jsRoutes.controllers.Application.instruct(('stop').val()).ajax({
+                success: function() {}
+            })
+        })
+    </script>
+
+    <table width="100%">
+        <tr>
+            <td width="20%" align="right">
+                <div id="instructions">
+                    <input type="button" style="width:150px;font-size:100%;" name="start" value="Start" id="start"/>
+                    <br>
+                    <input type="button" style="width:150px;font-size:100%" name="pause" value="Pause" id="pause"/>
+                    <br>
+                    <input type="button" style="width:150px;font-size:100%" name="stop" value="Stop" id="stop"/>
+                    <br>
+                </div>
+                <br><br><br><br>
+                <div id="statistics"></div>
+            </td>
+            <td width="90%">
+                <!-- <iframe src="@routes.Application.imageStream" style="display:none"></iframe> -->
+                <div id="resultImage" align="center">
+                    <img src="@routes.Assets.at("images/result.png")" width="800px" height="800px" border="1">
+                </div>
+            </td>
+        </tr>
+    </table>
+}
