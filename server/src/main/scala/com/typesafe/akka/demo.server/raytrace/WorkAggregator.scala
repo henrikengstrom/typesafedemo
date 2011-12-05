@@ -8,7 +8,6 @@ import akka.actor.Scheduler
 import akka.config.Config.config
 import akka.event.EventHandler
 
-import com.typesafe.akka.demo.WorkResult
 import com.typesafe.akka.demo.raytrace.RayTraceWorkResult
 import roygbiv.color.RGBColor
 
@@ -18,6 +17,8 @@ import java.util.concurrent.{ TimeUnit, ScheduledFuture }
 import java.awt.image.{ BufferedImage ⇒ JBufferedImage }
 import java.io.{ File ⇒ JFile }
 import javax.imageio.{ ImageIO ⇒ JImageIO }
+import roygbiv.scene.Scene
+import com.typesafe.akka.demo.{ Start, WorkResult }
 
 case object GenerateImage
 
@@ -26,8 +27,6 @@ class WorkAggregator extends Actor {
 
   var scheduled: Option[ScheduledFuture[_]] = None
   var buffer = new ArrayBuffer[RGBColor]()
-  val width = ImageWidth
-  val height = ImageHeight
   var resultCounter = 0
   var previousResultNumber = 0
 
@@ -45,6 +44,8 @@ class WorkAggregator extends Actor {
   def receive = {
     case result: WorkResult ⇒ applyResult(result)
     case GenerateImage      ⇒ generateImage()
+    case s: Scene           ⇒ scene = Some(s)
+    case Start              ⇒ startTime = System.nanoTime
   }
 
   def applyResult(result: WorkResult) = result match {
@@ -64,16 +65,22 @@ class WorkAggregator extends Actor {
       }
 
       resultCounter += 1
+      raysPerSecond = (scene.get.camera.screenHeight * scene.get.camera.screenWidth * resultCounter) / ((System.nanoTime - startTime) / 100000000)
+
+      println("*** RESULTS    : " + resultCounter)
+      println("*** RAYS/SECOND: " + raysPerSecond)
+
       EventHandler.debug(this, "Applying result from worker [%s], total calculated items: [%s]".format(resultCounter, r.workerId))
   }
 
   def generateImage() {
     if (resultCounter > previousResultNumber) {
+      val camera = scene.get.camera
       EventHandler.debug(this, "Generating image")
       previousResultNumber = resultCounter
       val scale = 1.0f / resultCounter
-      val image = new JBufferedImage(width, height, JBufferedImage.TYPE_INT_RGB)
-      image.setRGB(0, 0, width, height, buffer.map(color ⇒ (color * scale).asInt).toArray, 0, width)
+      val image = new JBufferedImage(camera.screenWidth, camera.screenHeight, JBufferedImage.TYPE_INT_RGB)
+      image.setRGB(0, 0, camera.screenWidth, camera.screenHeight, buffer.map(color ⇒ (color * scale).asInt).toArray, 0, camera.screenWidth)
       val file = new JFile(ImageName)
       JImageIO.write(image, "png", file)
     }
@@ -82,8 +89,9 @@ class WorkAggregator extends Actor {
 }
 
 object WorkAggregator {
-  val ImageGenerationFrequency = config.getInt("akka.demo.image.generationFrequency", 5000)
-  val ImageWidth = config.getInt("akka.demo.image.width", 800)
-  val ImageHeight = config.getInt("akka.demo.image.height", 800)
-  val ImageName = config.getString("akka.demo.image.name", "result.png")
+  val ImageGenerationFrequency = config.getInt("akka.raytracer.image.generationFrequency", 5000)
+  val ImageName = config.getString("akka.raytracer.image.name", "result.png")
+  var scene: Option[Scene] = None
+  var startTime: Long = 0L
+  var raysPerSecond: Long = 0L
 }

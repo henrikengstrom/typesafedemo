@@ -9,4 +9,4 @@ import com.typesafe.akka.demo.{ WorkResult, WorkInstruction }
 
 case class RayTraceWorkInstruction(aggregatorServer: String, aggregatorServerPort: Int, aggregatorServiceId: String, scene: Scene) extends WorkInstruction
 
-case class RayTraceWorkResult(workerId: String, result: Seq[RGBColor]) extends WorkResult
+case class RayTraceWorkResult(workerId: String, clientThreads: Int, result: Seq[RGBColor]) extends WorkResult

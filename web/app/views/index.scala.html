@@ -2,52 +2,108 @@
 
 @main("Typesafe Raytracer Demo") {
 
-    @helper.javascriptRouter("jsRoutes")(routes.javascript.Application.instruct)
+@helper.javascriptRouter("jsRoutes")(
+    routes.javascript.Application.start,
+    routes.javascript.Application.pause,
+    routes.javascript.Application.stop)
 
     <script type="text/javascript" charset="utf-8">
-        var statistics = function(stats) {
-            $('#statistics').append('<p>' + stats + '</p>')
+
+        function instruct(instruction) {
+            if (instruction == "#start") {
+                $("#resultText").html("<h2>Waiting for result...<br>Don't forget to start the client(s).</h2>");
+                disableButton("#startBtn");
+                enableButton("#pauseBtn");
+                enableButton("#stopBtn");
+                jsRoutes.controllers.Application.start().ajax({});
+            } else if (instruction == "#pause") {
+                $("#resultText").html("&nbsp;");
+                enableButton("#startBtn");
+                disableButton("#pauseBtn");
+                disableButton("#stopBtn");
+                jsRoutes.controllers.Application.pause().ajax({});
+            } else {
+                $("#resultText").html("<h2>Press 'Start' to raytrace an image</h2>");
+                enableButton("#startBtn");
+                disableButton("#pauseBtn");
+                disableButton("#stopBtn");
+                jsRoutes.controllers.Application.stop().ajax({});
+            }
+		}
+
+        function enableButton(buttonId) {
+            $(buttonId).removeClass('btn large primary disabled');
+            $(buttonId).addClass('btn large primary');
         }
 
-        $("#start").click(function() {
-            jsRoutes.controllers.Application.instruct(('start').val()).ajax({
-                success: function() {}
-            })
-        })
-
-        $("#pause").click(function() {
-            jsRoutes.controllers.Application.instruct(('pause').val()).ajax({
-                success: function() {}
-            })
-        })
-
-        $("#stop").click(function() {
-            jsRoutes.controllers.Application.instruct(('stop').val()).ajax({
-                success: function() {}
-            })
-        })
+        function disableButton(buttonId) {
+            $(buttonId).removeClass('btn large primary');
+            $(buttonId).addClass('btn large primary disabled');
+        }
     </script>
 
-    <table width="100%">
-        <tr>
-            <td width="20%" align="right">
-                <div id="instructions">
-                    <input type="button" style="width:150px;font-size:100%;" name="start" value="Start" id="start"/>
-                    <br>
-                    <input type="button" style="width:150px;font-size:100%" name="pause" value="Pause" id="pause"/>
-                    <br>
-                    <input type="button" style="width:150px;font-size:100%" name="stop" value="Stop" id="stop"/>
-                    <br>
-                </div>
-                <br><br><br><br>
-                <div id="statistics"></div>
-            </td>
-            <td width="90%">
-                <!-- <iframe src="@routes.Application.imageStream" style="display:none"></iframe> -->
-                <div id="resultImage" align="center">
-                    <img src="@routes.Assets.at("images/result.png")" width="800px" height="800px" border="1">
-                </div>
-            </td>
-        </tr>
-    </table>
+    <div class="topbar">
+      <div class="fill">
+        <div class="container">
+          <a class="brand" href="#">Typesafe Raytracing Demo</a>
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="content">
+        <div class="page-header">
+          <h1>Page name <small>Supporting text or tagline</small></h1>
+        </div>
+        <div class="row">
+          <div class="span10">
+              <div class="well" style="height: 600px;">
+                  <div id="resultText" align="center">
+                    <h2>Press 'Start' to raytrace an image</h2>
+                  </div>
+                  <div id="resultImage" align="center" style="visibility: hidden;">
+                      <img src="@routes.Assets.at("images/result.png")">
+                  </div>
+              </div>
+          </div>
+          <div class="span4">
+              <div class="well" style="height: 600px;">
+                  <h3>Typesafe Raytracing</h3>
+                  <p>Showcasing the power of Scala, Play and Akka.</p>
+                  <br>
+                  <p>Press 'Start', 'Pause' or 'Stop' to operate the tracing process.</p>
+                  <br>
+                  <a href="#" id="startBtn" onclick="instruct('#start');" class="btn large primary" style="width: 150px;">
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;START
+                  </a>
+                  <br>
+                  <a href="#" id="pauseBtn" onclick="instruct('#pause');" class="btn large primary disabled" style="width: 150px;">
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAUSE
+                  </a>
+                  <br>
+                  <a href="#" id="stopBtn" onclick="instruct('#stop');" class="btn large primary disabled" style="width: 150px;">
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STOP
+                  </a>
+                  <br><br>
+                  <h4>Number of Clients</h4>
+                  <div id="clientCount">0</div>
+                  <h4>Rays/second</h4>
+                  <div id="raysPerSecond">0</div>
+                  <h4>Generated Layers</h4>
+                  <div id="layerCount">0</div>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <p>&copy; Typesafe 2011</p>
+      </footer>
+    </div>
 }

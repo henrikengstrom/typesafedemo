@@ -1,0 +1,403 @@
+{
+    "scene": {
+        "version": "1.0-SNAPSHOT",
+        "name": "Typesafe Demo Scene",
+        "image": {
+            "width": 400,
+            "height": 600
+        },
+        "renderer": {
+            "rtype": "pathtracer"
+        },
+        "camera": {
+            "ctype": "pinhole",
+            "up": [
+                0,
+                1,
+                0
+            ],
+            "loc": [
+                0,
+                1,
+                7
+            ],
+            "target": [
+                0,
+                1,
+                -1
+            ],
+            "viewplanedist":1.9
+        },
+        "materials": [
+            {
+                "mtype": "diffuse",
+                "id": "0",
+                "name": "sphere_material",
+                "color": [
+                    0.5,
+                    0.5,
+                    0.9
+                ]
+            },
+            {
+                "mtype": "diffuse",
+                "id": "1",
+                "name": "plane_material",
+                "color": [
+                    0.5,
+                    0.5,
+                    0.5
+                ]
+            }
+        ],
+        "lights": [
+            {
+                "ltype": "disc",
+                "name": "Light2",
+                "radius": 0.5,
+                "loc": [
+                    0,
+                    2.5,
+                    0
+                ],
+                "normal": [
+                    0,
+                    -1,
+                    0
+                ],
+                "color": [
+                    1,
+                    1,
+                    1
+                ],
+                "power": 10
+            }
+        ],
+        "geometry": [
+            {
+                "gtype": "disc",
+                "name": "Disc1",
+                "radius": 12.5,
+                "loc": [
+                    0,
+                    0,
+                    0
+                ],
+                "normal": [
+                    0,
+                    1,
+                    0
+                ],
+                "mid": "1"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereBG1",
+                "radius": 0.4,
+                "loc": [
+                    -1.0,
+                    0.4,
+                    3.0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereBG2",
+                "radius": 0.8,
+                "loc": [
+                    1.8,
+                    0.8,
+                    -3.0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT1",
+                "radius": 0.1,
+                "loc": [
+                    -0.6,
+                    0.3,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT2",
+                "radius": 0.1,
+                "loc": [
+                    -0.6,
+                    0.5,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT3",
+                "radius": 0.1,
+                "loc": [
+                    -0.6,
+                    0.7,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT4",
+                "radius": 0.1,
+                "loc": [
+                    -0.6,
+                    0.9,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT5",
+                "radius": 0.1,
+                "loc": [
+                    -1.0,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT6",
+                "radius": 0.1,
+                "loc": [
+                    -0.8,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT7",
+                "radius": 0.1,
+                "loc": [
+                    -0.6,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT8",
+                "radius": 0.1,
+                "loc": [
+                    -0.4,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereT9",
+                "radius": 0.1,
+                "loc": [
+                    -0.2,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS1",
+                "radius": 0.1,
+                "loc": [
+                    1.0,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS2",
+                "radius": 0.1,
+                "loc": [
+                    0.8,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS3",
+                "radius": 0.1,
+                "loc": [
+                    0.6,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS4",
+                "radius": 0.1,
+                "loc": [
+                    0.4,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS5",
+                "radius": 0.1,
+                "loc": [
+                    0.2,
+                    1.1,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS6",
+                "radius": 0.1,
+                "loc": [
+                    0.2,
+                    0.9,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS7",
+                "radius": 0.1,
+                "loc": [
+                    0.2,
+                    0.7,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS8",
+                "radius": 0.1,
+                "loc": [
+                    0.4,
+                    0.7,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS9",
+                "radius": 0.1,
+                "loc": [
+                    0.6,
+                    0.7,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS10",
+                "radius": 0.1,
+                "loc": [
+                    0.8,
+                    0.7,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS11",
+                "radius": 0.1,
+                "loc": [
+                    1.0,
+                    0.7,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS12",
+                "radius": 0.1,
+                "loc": [
+                    1.0,
+                    0.5,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS13",
+                "radius": 0.1,
+                "loc": [
+                    1.0,
+                    0.3,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS14",
+                "radius": 0.1,
+                "loc": [
+                    0.8,
+                    0.3,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS15",
+                "radius": 0.1,
+                "loc": [
+                    0.6,
+                    0.3,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS16",
+                "radius": 0.1,
+                "loc": [
+                    0.4,
+                    0.3,
+                    0
+                ],
+                "mid": "0"
+            },
+            {
+                "gtype": "sphere",
+                "name": "SphereS17",
+                "radius": 0.1,
+                "loc": [
+                    0.2,
+                    0.3,
+                    0
+                ],
+                "mid": "0"
+            }
+        ]
+    }
+}

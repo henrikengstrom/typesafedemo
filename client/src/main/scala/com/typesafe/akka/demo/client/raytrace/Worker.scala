@@ -3,11 +3,13 @@
  */
 package com.typesafe.akka.demo.client.raytrace
 
-import akka.actor.Actor
 import akka.actor.Actor._
 import akka.event.EventHandler
 import akka.dispatch.Dispatchers
+import akka.actor.{ PoisonPill, ActorRef, Actor }
 import com.typesafe.akka.demo.raytrace.{ RayTraceWorkResult, RayTraceWorkInstruction }
+import com.typesafe.akka.demo.{ Start, Stop, Pause }
+import roygbiv.scene.Scene
 import roygbiv.common.WorkResult
 import roygbiv.worker.RayTracer
 
@@ -18,18 +20,31 @@ class Worker() extends Actor {
   var aggregatorServer: String = ""
   var aggregatorPort: Int = 0
   var aggregatorServiceId: String = ""
+  var scene: Option[Scene] = None
+  var workerHandles: Vector[ActorRef] = Vector()
 
   def receive = {
-    case RayTraceWorkInstruction(server, port, serviceId, scene) ⇒
+    case RayTraceWorkInstruction(server, port, serviceId, theScene) ⇒
       aggregatorServer = server
       aggregatorPort = port
       aggregatorServiceId = serviceId
-      // Start as many workers as there are cores on the machine (to optimize power)
-      for (i <- 1.until(availableProcessors)) {
-        actorOf(new RayTracer(WorkerDispatcher)).start() ! new roygbiv.worker.Work(scene)
+      scene = Some(theScene)
+    case Start ⇒
+      if (scene.isDefined) {
+        // Start as many workers as there are cores on the machine (to optimize power)
+        for (i ← 1.until(availableProcessors)) {
+          val worker = actorOf(new RayTracer(WorkerDispatcher))
+          worker.start() ! new roygbiv.worker.Work(scene.get)
+          workerHandles = worker +: workerHandles
+        }
       }
+    case Pause ⇒
+      workerHandles.foreach(handle ⇒ handle ! roygbiv.worker.Pause)
+    case Stop ⇒
+      workerHandles.foreach(handle ⇒ handle ! PoisonPill)
+      workerHandles = Vector()
     case wr: WorkResult ⇒
-      remote.actorFor(aggregatorServiceId, aggregatorServer, aggregatorPort) ! RayTraceWorkResult(wr.workerId, wr.result)
+      remote.actorFor(aggregatorServiceId, aggregatorServer, aggregatorPort) ! RayTraceWorkResult(wr.workerId, availableProcessors, wr.result)
     case other ⇒
       EventHandler.error(this, "Received unexpected message!")
   }
