@@ -7,7 +7,6 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0"
 
     val appDependencies = Seq(
-      "se.scalablesolutions.akka" % "akka-remote" % "1.2",
       "com.typesafe.akka.demo" % "server" % "1.0-SNAPSHOT"
     )
 

@@ -35,7 +35,7 @@ object TypesafeDemoBuild extends Build {
   lazy val web = Project(
     id = "web",
     base = file("web"),
-    dependencies = Seq(shared),
+    dependencies = Seq(shared, server),
     settings = defaultSettings ++ Seq(libraryDependencies ++= Dependencies.typesafeDemo ++ Dependencies.playLibs)
   )
 
@@ -89,29 +89,31 @@ object TypesafeDemoBuild extends Build {
 object Dependencies {
   import Dependency._
 
-  val typesafeDemo = Seq(akkaKernel, akkaRemote, sjson, slf4j, roygbiv, logback, scalatest, junit, akkaTestKit)
+  val typesafeDemo = Seq(akkaActor, akkaRemote, akkaKernel, sjson, slf4j, roygbiv, logback, scalatest, junit, akkaTestKit)
 
-  val playLibs = Seq(play)
+  val playLibs = Seq(play, akkaRemote, protobuf)
 }
 
 object Dependency {
   object V {
-    val Akka      = "1.2"
+    val Akka      = "2.0-M1"
     val Scalatest = "1.6.1"
     val Slf4j     = "1.6.0"
     val Roygbiv   = "1.0-SNAPSHOT"
     val Sjson     = "0.11"
     val Play      = "2.0-beta"
+    val Protobuf  = "2.4.1"
   }
 
-  val akkaKernel        = "se.scalablesolutions.akka" % "akka-kernel"        % V.Akka
-  val akkaRemote        = "se.scalablesolutions.akka" % "akka-remote"        % V.Akka
-  val akkaSlf4j         = "se.scalablesolutions.akka" % "akka-slf4j"         % V.Akka
-  val akkaTestKit       = "se.scalablesolutions.akka" % "akka-testkit"       % V.Akka
+  val akkaActor         = "com.typesafe.akka"         % "akka-actor"         % V.Akka
+  val akkaRemote        = "com.typesafe.akka"         % "akka-remote"        % V.Akka
+  val akkaKernel        = "com.typesafe.akka"         % "akka-kernel"        % V.Akka
+  val akkaTestKit       = "com.typesafe.akka"         % "akka-testkit"       % V.Akka
   val sjson             = "net.debasishg"             % "sjson_2.9.0"        % V.Sjson
   val slf4j             = "org.slf4j"                 % "slf4j-api"          % V.Slf4j
   val roygbiv           = "roygbiv"                   % "shared_2.9.1"       % V.Roygbiv
   val play              = "play"                      % "play_2.9.1"         % V.Play
+  val protobuf          = "com.google.protobuf"       % "protobuf-java"      % V.Protobuf
 
   val logback           = "ch.qos.logback"            % "logback-classic"    % "0.9.24"
   val scalatest         = "org.scalatest"             % "scalatest_2.9.0"    % V.Scalatest % "test"

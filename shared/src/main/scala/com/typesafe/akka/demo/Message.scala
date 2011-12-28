@@ -33,3 +33,5 @@ trait WorkInstruction extends Message {
 trait WorkResult extends Message {
   def workerId: String
 }
+
+case object ClientInfo extends Message
