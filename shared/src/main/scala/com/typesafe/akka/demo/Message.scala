@@ -6,7 +6,7 @@ trait Message
 // *** LIFE CYCLE MESSAGES ***
 // ***************************
 
-case class ClientRegistration(serviceId: String, server: String, port: Int) extends Message
+case class ClientRegistration(remoteAddress: String) extends Message
 
 // Used to pause the client - keeps state
 case object Pause extends Message
@@ -26,8 +26,6 @@ case object Reset extends Message
 
 trait WorkInstruction extends Message {
   def aggregatorServer: String
-  def aggregatorServerPort: Int
-  def aggregatorServiceId: String
 }
 
 trait WorkResult extends Message {

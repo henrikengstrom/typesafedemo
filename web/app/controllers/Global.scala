@@ -9,6 +9,6 @@ import com.typesafe.akka.demo.server.Server
 object Global extends GlobalSettings {
   override def onStart(app: PlayApplication) {
     // Start the server
-    new Server()
+    //new Server()
   }
 }

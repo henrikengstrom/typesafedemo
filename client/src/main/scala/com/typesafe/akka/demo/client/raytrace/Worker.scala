@@ -8,24 +8,19 @@ import com.typesafe.akka.demo.{ Start, Stop, Pause }
 import roygbiv.scene.Scene
 import roygbiv.common.WorkResult
 import roygbiv.worker.RayTracer
-import roygbiv.color.RGBColor
 import akka.actor.{ Props, PoisonPill, ActorRef, Actor }
 
-class Worker() extends Actor {
+class Worker extends Actor {
 
   import Worker._
 
   var aggregatorServer: String = ""
-  var aggregatorPort: Int = 0
-  var aggregatorServiceId: String = ""
   var scene: Option[Scene] = None
   var workerHandles: Vector[ActorRef] = Vector()
 
   def receive = {
-    case RayTraceWorkInstruction(server, port, serviceId, theScene) ⇒
+    case RayTraceWorkInstruction(server, theScene) ⇒
       aggregatorServer = server
-      aggregatorPort = port
-      aggregatorServiceId = serviceId
       scene = Some(theScene)
     case Start ⇒
       if (scene.isDefined) {
@@ -44,7 +39,7 @@ class Worker() extends Actor {
       workerHandles = Vector()
       self ! PoisonPill
     case wr: WorkResult ⇒
-      context.actorFor("akka://" + aggregatorServer + ":" + aggregatorPort + "/user/" + aggregatorServiceId) ! RayTraceWorkResult(wr.workerId, availableProcessors, Seq[RGBColor]())
+      context.actorFor(aggregatorServer) ! RayTraceWorkResult(wr.workerId, availableProcessors, wr.result)
     case other ⇒
     // TODO (HE): Log
   }

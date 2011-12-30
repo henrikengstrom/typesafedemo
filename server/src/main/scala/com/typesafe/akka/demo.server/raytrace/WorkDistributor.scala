@@ -3,7 +3,6 @@
  */
 package com.typesafe.akka.demo.server.raytrace
 
-import akka.config.Config.config
 import roygbiv.scene.json.JsonSceneLoader
 import roygbiv.scene.{ SceneLoaderOrchestrator, LoadScene, Scene }
 import com.typesafe.akka.demo.raytrace.RayTraceWorkInstruction
@@ -30,28 +29,26 @@ class WorkDistributor extends Actor {
       context.actorOf(Props[WorkAggregator]) ! s
     case c: ClientRegistration ⇒
       clients = c +: clients
-      remote.actorFor(c.serviceId, c.server, c.port) !
+      context.actorFor(c.remoteAddress) !
         RayTraceWorkInstruction(
-          context.system.settings.config.getString("akka.raytracing.aggregator.server"),
-          context.system.settings.config.getInt("akka.raytracing.aggregator.port"),
-          context.system.settings.config.getString("akka.raytracing.aggregator.serviceId"),
+          context.system.settings.config.getString("akka.raytracing.aggregator.address"),
           scene.get)
-      if (state == Started) remote.actorFor(c.serviceId, c.server, c.port) ! Start
+      if (state == Started) context.actorFor(c.remoteAddress) ! Start
     case Start ⇒
       state = Started
-      for (c ← clients) remote.actorFor(c.serviceId, c.server, c.port) ! Start
+      for (c ← clients) context.actorFor(c.remoteAddress) ! Start
     case Pause ⇒
       state = Paused
-      for (c ← clients) remote.actorFor(c.serviceId, c.server, c.port) ! Pause
+      for (c ← clients) context.actorFor(c.remoteAddress) ! Pause
     case Stop ⇒
       state = Stopped
-      for (c ← clients) remote.actorFor(c.serviceId, c.server, c.port) ! Stop
+      for (c ← clients) context.actorFor(c.remoteAddress) ! Stop
   }
 
   private def loadScene() = {
     val loader = context.actorOf(Props[SceneLoaderOrchestrator])
     loader ! LoadScene(JsonSceneLoader.SceneType,
-      context.system.settings.config.getString("akka.raytracing.sceneDefinition"))
+      context.system.settings.config.getString("akka.raytracing.scenedefinition"))
   }
 }
 

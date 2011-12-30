@@ -13,7 +13,7 @@ class ClientWorker extends Actor {
 
   def receive = {
     case instruction: WorkInstruction ⇒
-      val actor = context.actorOf(Props[Worker])
+      val actor = context.actorOf(Props[Worker], "worker")
       actor ! instruction
       worker = Some(actor)
     case Start ⇒

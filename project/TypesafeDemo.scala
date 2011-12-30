@@ -2,8 +2,8 @@ package typesafe.akka.demo
 
 import sbt._
 import Keys._
-import com.typesafe.sbtscalariform.ScalariformPlugin
-import ScalariformPlugin.{ format, formatPreferences }
+//import com.typesafe.sbtscalariform.ScalariformPlugin
+//import ScalariformPlugin.{ format, formatPreferences }
 
 object TypesafeDemoBuild extends Build {
   val Organization = "com.typesafe.akka.demo"
@@ -57,7 +57,9 @@ object TypesafeDemoBuild extends Build {
     organizationHomepage := Some(url("http://www.typesafe.com"))
   )
 
-  lazy val defaultSettings = buildSettings ++ formatSettings ++ Seq(    
+  // TODO (h3nk3) : Add line below
+  //lazy val defaultSettings = buildSettings ++ formatSettings ++ Seq(
+  lazy val defaultSettings = buildSettings ++ Seq(
     resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
 
     // compile options
@@ -70,6 +72,8 @@ object TypesafeDemoBuild extends Build {
 
   // Format settings
 
+  // TODO (h3nk3) : Resolve SBT dependency
+  /*
   lazy val formatSettings = ScalariformPlugin.settings ++ Seq(
     formatPreferences in Compile := formattingPreferences,
     formatPreferences in Test    := formattingPreferences
@@ -84,6 +88,7 @@ object TypesafeDemoBuild extends Build {
     .setPreference(AlignSingleLineCaseStatements, true)
     .setPreference(PreserveDanglingCloseParenthesis, true)
   }
+  */
 }
 
 object Dependencies {

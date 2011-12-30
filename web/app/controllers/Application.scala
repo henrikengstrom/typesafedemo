@@ -13,17 +13,17 @@ object Application extends Controller {
   }
 
   def start = Action {
-    Server.supervisorRef ! Start
+    Server.start()
     Ok(views.html.index("ok"))
   }
 
   def pause = Action {
-    Server.supervisorRef ! Pause
+    Server.pause()
     Ok(views.html.index("ok"))
   }
 
   def stop = Action {
-    Server.supervisorRef ! Stop
+    Server.stop()
     Ok(views.html.index("ok"))
   }
 }

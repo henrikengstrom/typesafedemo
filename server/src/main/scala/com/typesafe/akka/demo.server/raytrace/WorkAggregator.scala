@@ -27,6 +27,10 @@ class WorkAggregator extends Actor {
   var resultCounter = 0
   var previousResultNumber = 0
 
+  var startTime: Long = 0L
+  var raysPerSecond: Long = 0L
+  var rays = 0L
+
   override def preStart() {
     if (scheduled.isEmpty) {
       val conf = context.system.settings.config
@@ -68,10 +72,12 @@ class WorkAggregator extends Actor {
       }
 
       resultCounter += 1
-      raysPerSecond = (scene.get.camera.screenHeight * scene.get.camera.screenWidth * resultCounter) / ((System.nanoTime - startTime) / 100000000)
+      rays = (scene.get.camera.screenWidth * scene.get.camera.screenHeight) * resultCounter
+      raysPerSecond = rays / ((System.nanoTime - startTime) / 1000000000)
 
-      println("*** RESULTS    : " + resultCounter)
-      println("*** RAYS/SECOND: " + raysPerSecond)
+      println("*** RESULTS DELIVERED: " + resultCounter)
+      println("*** RAYS CALCULATED  : " + rays)
+      println("*** RAYS/SECOND      : " + raysPerSecond)
 
     // TODO (HE) : Add logging
     //EventHandler.debug(this, "Applying result from worker [%s], total calculated items: [%s]".format(resultCounter, r.workerId))
@@ -84,7 +90,7 @@ class WorkAggregator extends Actor {
       val scale = 1.0f / resultCounter
       val image = new JBufferedImage(camera.screenWidth, camera.screenHeight, JBufferedImage.TYPE_INT_RGB)
       image.setRGB(0, 0, camera.screenWidth, camera.screenHeight, buffer.map(color ⇒ (color * scale).asInt).toArray, 0, camera.screenWidth)
-      val file = new JFile(context.system.settings.config.getString("akka.raytracer.image.name"))
+      val file = new JFile(context.system.settings.config.getString("akka.raytracing.image.name"))
       JImageIO.write(image, "png", file)
     }
   }
@@ -92,6 +98,4 @@ class WorkAggregator extends Actor {
 
 object WorkAggregator {
   var scene: Option[Scene] = None
-  var startTime: Long = 0L
-  var raysPerSecond: Long = 0L
 }

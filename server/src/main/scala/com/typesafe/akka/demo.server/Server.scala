@@ -3,29 +3,53 @@
  */
 package com.typesafe.akka.demo.server
 
-import raytrace.{ WorkAggregator, WorkDistributor }
-import akka.remote
-import akka.actor.ActorSystem
+import akka.kernel.Bootable
+import akka.actor.{Props, ActorSystem}
+import raytrace.{WorkDistributor, WorkAggregator}
+import com.typesafe.akka.demo.{Start, Pause, Stop}
 
 class Server extends Bootable {
-  import Server._
-
   val system = ActorSystem("RaytraceServer")
+  val aggregator = system.actorOf(Props[WorkAggregator], "aggregator")
+  val distributor = system.actorOf(Props[WorkDistributor], "distributor")
+  println("*** RAY TRACE SERVER STARTED ***")
 
-  // start the remoting as specified in configuration
-  val serverHost = system.settings.config.getString("akka.remote.server.hostname")
-  val serverPort = system.settings.config.getInt("akka.remote.server.port")
+  def startup() {
+    // TODO (HE): temp start while Play 2.0-RCx is not running on Akka 2.0
+    start()
+  }
 
-  println("*** STARTING SERVER [%s, %s]".format(serverHost, serverPort))
+  def shutdown() {
+    system.shutdown()
+  }
+  
+  def start(): Unit = {
+    distributor ! Start
+    aggregator ! Start
+  }
 
-  remote.start(serverHost, serverPort)
-  remote.register(supervisorServiceId, supervisorRef)
-  remote.register(aggregatorServiceId, aggregatorRef)
+  def pause(): Unit = {
+    distributor ! Pause
+  }
+
+  def stop(): Unit = {
+    distributor ! Stop
+  }
 }
 
-object Server {
-  lazy val supervisorRef = system.actorOf[WorkSupervisor]
+object Server extends App {
 
-  val aggregatorServiceId = config.getString("akka.demo.aggregator.serviceId", "aggregator")
-  val supervisorServiceId = config.getString("akka.demo.supervisor.serviceId", "supervisor")
+  val s = new Server
+  
+  def start(): Unit = {
+    s.start()  
+  }
+  
+  def pause(): Unit = {
+    s.pause()
+  }
+  
+  def stop(): Unit = {
+    s.stop()
+  }
 }
