@@ -1,6 +1,6 @@
 @(message: String)
 
-@main("Typesafe Raytracer Demo") {
+@main("TypesafeRaytracerDemo") {
 
 @helper.javascriptRouter("jsRoutes")(
     routes.javascript.Application.start,
@@ -8,10 +8,13 @@
     routes.javascript.Application.stop)
 
     <script type="text/javascript" charset="utf-8">
+        var message = function(msg) {
+            $('#raysPerSecond').text(msg);
+        }
 
         function instruct(instruction) {
             if (instruction == "#start") {
-                $("#resultText").html("<h2>Waiting for result...<br>Don't forget to start the client(s).</h2>");
+                $("#resultText").html("<h2>Raytracing in progress</h2>");
                 disableButton("#startBtn");
                 enableButton("#pauseBtn");
                 enableButton("#stopBtn");
@@ -71,8 +74,8 @@
                   <div id="resultText" align="center">
                     <h2>Press 'Start' to raytrace an image</h2>
                   </div>
-                  <div id="resultImage" align="center" style="visibility: hidden;">
-                      <img src="@routes.Assets.at("images/result.png")">
+                  <div id="resultImage" align="center" style="height: 500px; width: 400px">
+                      <img src="@routes.Assets.at("images/result.png")" style="height: 570px; width: 540px">
                   </div>
               </div>
           </div>
@@ -96,15 +99,18 @@
                   </a>
                   <br><br>
                   <h4>Number of Clients</h4>
-                  <div id="clientCount">0</iframe></div>
+                  <div id="clientCount">0</div>
                   <h4>Rays/second</h4>
-                  <div id="raysPerSecond">0</div>
+                  <div id="raysPerSecond"></div>
                   <h4>Generated Layers</h4>
                   <div id="layerCount">0</div>
               </div>
           </div>
         </div>
       </div>
+
+      <!-- wire comet methods -->
+      <iframe src="@routes.Application.rays" style="display:none"></iframe>
 
       <footer>
         <p>&copy; Typesafe 2011</p>

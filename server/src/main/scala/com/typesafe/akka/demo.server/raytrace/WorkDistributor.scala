@@ -34,19 +34,22 @@ class WorkDistributor extends Actor {
           context.system.settings.config.getString("akka.raytracing.aggregator.address"),
           scene.get)
       if (state == Started) context.actorFor(c.remoteAddress) ! Start
-    case Start ⇒
+    case "Start" ⇒
+      println("*** server started")
       state = Started
       for (c ← clients) context.actorFor(c.remoteAddress) ! Start
-    case Pause ⇒
+    case "Pause" ⇒
+      println("*** server paused")
       state = Paused
       for (c ← clients) context.actorFor(c.remoteAddress) ! Pause
-    case Stop ⇒
+    case "Stop" ⇒
+      println("*** server stopped")
       state = Stopped
       for (c ← clients) context.actorFor(c.remoteAddress) ! Stop
   }
 
   private def loadScene() = {
-    val loader = context.actorOf(Props[SceneLoaderOrchestrator])
+    val loader = context.actorOf(Props[SceneLoaderOrchestrator], "sceneLoaderOrchestrator")
     loader ! LoadScene(JsonSceneLoader.SceneType,
       context.system.settings.config.getString("akka.raytracing.scenedefinition"))
   }

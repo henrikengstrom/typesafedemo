@@ -6,7 +6,6 @@ package com.typesafe.akka.demo.server
 import akka.kernel.Bootable
 import akka.actor.{Props, ActorSystem}
 import raytrace.{WorkDistributor, WorkAggregator}
-import com.typesafe.akka.demo.{Start, Pause, Stop}
 
 class Server extends Bootable {
   val system = ActorSystem("RaytraceServer")
@@ -16,40 +15,11 @@ class Server extends Bootable {
 
   def startup() {
     // TODO (HE): temp start while Play 2.0-RCx is not running on Akka 2.0
-    start()
+    aggregator ! "Start"
+    distributor ! "Start"
   }
 
   def shutdown() {
     system.shutdown()
-  }
-  
-  def start(): Unit = {
-    distributor ! Start
-    aggregator ! Start
-  }
-
-  def pause(): Unit = {
-    distributor ! Pause
-  }
-
-  def stop(): Unit = {
-    distributor ! Stop
-  }
-}
-
-object Server extends App {
-
-  val s = new Server
-  
-  def start(): Unit = {
-    s.start()  
-  }
-  
-  def pause(): Unit = {
-    s.pause()
-  }
-  
-  def stop(): Unit = {
-    s.stop()
   }
 }

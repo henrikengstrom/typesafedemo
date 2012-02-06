@@ -7,9 +7,7 @@ GET     /                           controllers.Application.index()
 GET     /start                      controllers.Application.start()
 GET     /pause                      controllers.Application.pause()
 GET     /stop                       controllers.Application.stop()
-#GET     /clientInfo                 controllers.Status.clientInfo()
-#GET     /raysPerSecond              controllers.Status.raysPerSecond()
-#GET     /generatedLayers            controllers.Status.generatedLayers()
+GET     /rays                       controllers.Application.rays()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

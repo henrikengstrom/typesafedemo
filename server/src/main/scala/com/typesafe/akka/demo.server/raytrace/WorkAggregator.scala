@@ -8,18 +8,19 @@ import roygbiv.color.RGBColor
 
 import collection.mutable.ArrayBuffer
 
-import java.awt.image.{ BufferedImage ⇒ JBufferedImage }
-import java.io.{ File ⇒ JFile }
-import javax.imageio.{ ImageIO ⇒ JImageIO }
+import java.awt.image.{BufferedImage ⇒ JBufferedImage}
+import java.io.{File ⇒ JFile}
+import javax.imageio.{ImageIO ⇒ JImageIO}
 import roygbiv.scene.Scene
-import com.typesafe.akka.demo.{ Start, WorkResult }
-import akka.actor.{Cancellable, Actor}
+import com.typesafe.akka.demo.{Start, WorkResult}
 import java.util.concurrent.TimeUnit
 import akka.util.Duration
+import akka.actor.{ActorRef, Cancellable, Actor}
 
 case object GenerateImage
 
 class WorkAggregator extends Actor {
+
   import WorkAggregator._
 
   var scheduled: Option[Cancellable] = None
@@ -31,14 +32,16 @@ class WorkAggregator extends Actor {
   var raysPerSecond: Long = 0L
   var rays = 0L
 
+  var webClient: Option[ActorRef] = None
+  
   override def preStart() {
     if (scheduled.isEmpty) {
       val conf = context.system.settings.config
-      val cancellable = 
+      val cancellable =
         context.system.scheduler.schedule(
           Duration(conf.getMilliseconds("akka.scheduler.tickDuration"), TimeUnit.MILLISECONDS),
           Duration(conf.getMilliseconds("akka.scheduler.tickDuration"), TimeUnit.MILLISECONDS),
-          self, 
+          self,
           GenerateImage)
       scheduled = Some(cancellable)
     }
@@ -50,9 +53,12 @@ class WorkAggregator extends Actor {
 
   def receive = {
     case result: WorkResult ⇒ applyResult(result)
-    case GenerateImage      ⇒ generateImage()
-    case s: Scene           ⇒ scene = Some(s)
-    case Start              ⇒ startTime = System.nanoTime
+    case GenerateImage ⇒ generateImage()
+    case s: Scene ⇒ scene = Some(s)
+    case "Start" ⇒ startTime = System.nanoTime
+    case "WebReceiver" =>
+      // TODO : add a list of listeners/subscribers
+      webClient = Some(sender)
   }
 
   def applyResult(result: WorkResult) = result match {
@@ -60,14 +66,16 @@ class WorkAggregator extends Actor {
       var counter = 0
       if (buffer.isEmpty) {
         buffer = new ArrayBuffer[RGBColor](r.result.size)
-        r.result.foreach({ color ⇒
-          buffer += color
-          counter += 1
+        r.result.foreach({
+          color ⇒
+            buffer += color
+            counter += 1
         })
       } else {
-        r.result.foreach({ color ⇒
-          buffer(counter) = buffer(counter) + color
-          counter += 1
+        r.result.foreach({
+          color ⇒
+            buffer(counter) = buffer(counter) + color
+            counter += 1
         })
       }
 
@@ -79,8 +87,9 @@ class WorkAggregator extends Actor {
       println("*** RAYS CALCULATED  : " + rays)
       println("*** RAYS/SECOND      : " + raysPerSecond)
 
-    // TODO (HE) : Add logging
-    //EventHandler.debug(this, "Applying result from worker [%s], total calculated items: [%s]".format(resultCounter, r.workerId))
+      // Update clients
+      println("*** sending result to: " + webClient)
+      for (web <- webClient) web ! raysPerSecond
   }
 
   def generateImage() {

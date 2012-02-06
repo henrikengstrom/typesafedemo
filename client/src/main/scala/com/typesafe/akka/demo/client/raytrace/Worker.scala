@@ -6,9 +6,9 @@ package com.typesafe.akka.demo.client.raytrace
 import com.typesafe.akka.demo.raytrace.{ RayTraceWorkResult, RayTraceWorkInstruction }
 import com.typesafe.akka.demo.{ Start, Stop, Pause }
 import roygbiv.scene.Scene
-import roygbiv.common.WorkResult
 import roygbiv.worker.RayTracer
 import akka.actor.{ Props, PoisonPill, ActorRef, Actor }
+import roygbiv.WorkResult
 
 class Worker extends Actor {
 
@@ -27,13 +27,14 @@ class Worker extends Actor {
         // Start as many workers as there are cores on the machine (to optimize power)
         // Each of the workers get a pinned dispatcher: http://akka.io/docs/akka/2.0-M1/scala/dispatchers.html
         1 until availableProcessors foreach { i =>
-          val worker = context.actorOf(Props[RayTracer].withDispatcher(context.system.dispatcherFactory.newPinnedDispatcher("rt" + i)))
+          val worker = context.actorOf(Props[RayTracer].withDispatcher("client-dispatcher"), "worker" + i)
           worker ! new roygbiv.worker.Work(scene.get)
           workerHandles = worker +: workerHandles
         }
       }
     case Pause ⇒
-      workerHandles.foreach(handle ⇒ handle ! roygbiv.worker.Pause)
+      // TODO (HE) : Handle
+      //workerHandles.foreach(handle ⇒ handle ! roygbiv.worker.Pause)
     case Stop ⇒
       workerHandles.foreach(handle ⇒ handle ! PoisonPill)
       workerHandles = Vector()
