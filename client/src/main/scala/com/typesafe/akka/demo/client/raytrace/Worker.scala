@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2011 Typesafe <http://typesafe.com/>
+ *  Copyright (C) 2012 Typesafe <http://typesafe.com/>
  */
 package com.typesafe.akka.demo.client.raytrace
 
@@ -47,5 +47,5 @@ class Worker extends Actor {
 }
 
 object Worker {
-  val availableProcessors = Runtime.getRuntime.availableProcessors
+  val availableProcessors = 2 //Runtime.getRuntime.availableProcessors
 }

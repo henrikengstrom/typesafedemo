@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2011 Typesafe <http://typesafe.com/>
+ *  Copyright (C) 2012 Typesafe <http://typesafe.com/>
  */
 package com.typesafe.akka.demo.server.raytrace
 
@@ -16,6 +16,7 @@ import com.typesafe.akka.demo.{Start, WorkResult}
 import java.util.concurrent.TimeUnit
 import akka.util.Duration
 import akka.actor.{ActorRef, Cancellable, Actor}
+import javax.swing.ImageIcon
 
 case object GenerateImage
 
@@ -39,8 +40,8 @@ class WorkAggregator extends Actor {
       val conf = context.system.settings.config
       val cancellable =
         context.system.scheduler.schedule(
-          Duration(conf.getMilliseconds("akka.scheduler.tickDuration"), TimeUnit.MILLISECONDS),
-          Duration(conf.getMilliseconds("akka.scheduler.tickDuration"), TimeUnit.MILLISECONDS),
+          Duration(conf.getMilliseconds("akka.raytracing.image.generation-frequency"), TimeUnit.MILLISECONDS),
+          Duration(conf.getMilliseconds("akka.raytracing.image.generation-frequency"), TimeUnit.MILLISECONDS),
           self,
           GenerateImage)
       scheduled = Some(cancellable)
@@ -99,8 +100,9 @@ class WorkAggregator extends Actor {
       val scale = 1.0f / resultCounter
       val image = new JBufferedImage(camera.screenWidth, camera.screenHeight, JBufferedImage.TYPE_INT_RGB)
       image.setRGB(0, 0, camera.screenWidth, camera.screenHeight, buffer.map(color ⇒ (color * scale).asInt).toArray, 0, camera.screenWidth)
-      val file = new JFile(context.system.settings.config.getString("akka.raytracing.image.name"))
-      JImageIO.write(image, "png", file)
+      //val file = new JFile(context.system.settings.config.getString("akka.raytracing.image.name"))
+      //JImageIO.write(image, "png", file)
+      for (web <- webClient) web ! new ImageIcon(image)
     }
   }
 }

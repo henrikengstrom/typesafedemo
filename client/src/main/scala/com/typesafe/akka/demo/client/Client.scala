@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2011 Typesafe <http://typesafe.com/>
+ *  Copyright (C) 2012 Typesafe <http://typesafe.com/>
  */
 package com.typesafe.akka.demo.client
 
@@ -14,8 +14,8 @@ class Client extends Bootable {
   val clientWorker = system.actorOf(Props[ClientWorker], "clientWorker")
 
   // Call remote server and register client
-  system.actorFor(system.settings.config.getString("akka.typesafedemo.serverWorkDistributor")) !
-    ClientRegistration(system.settings.config.getString("akka.typesafedemo.thisClient"))
+  system.actorFor(system.settings.config.getString("akka.typesafedemo.server-work-distributor")) !
+    ClientRegistration(system.settings.config.getString("akka.typesafedemo.this-client"))
 
   println("*** RAY TRACE CLIENT STARTED ***")
 

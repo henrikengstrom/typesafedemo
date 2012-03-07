@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2011 Typesafe <http://typesafe.com/>
+ *  Copyright (C) 2012 Typesafe <http://typesafe.com/>
  */
 package com.typesafe.akka.demo.server.raytrace
 
@@ -51,7 +51,7 @@ class WorkDistributor extends Actor {
   private def loadScene() = {
     val loader = context.actorOf(Props[SceneLoaderOrchestrator], "sceneLoaderOrchestrator")
     loader ! LoadScene(JsonSceneLoader.SceneType,
-      context.system.settings.config.getString("akka.raytracing.scenedefinition"))
+      context.system.settings.config.getString("akka.raytracing.scene-definition"))
   }
 }
 

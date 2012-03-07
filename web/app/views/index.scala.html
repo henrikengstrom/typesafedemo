@@ -9,7 +9,8 @@
 
     <script type="text/javascript" charset="utf-8">
         var message = function(msg) {
-            $('#raysPerSecond').text(msg);
+            $('#daImage').attr('src', 'data:image/jpg;base64,' + msg);
+            //$('#raysPerSecond').text(msg);
         }
 
         function instruct(instruction) {
@@ -75,7 +76,7 @@
                     <h2>Press 'Start' to raytrace an image</h2>
                   </div>
                   <div id="resultImage" align="center" style="height: 500px; width: 400px">
-                      <img src="@routes.Assets.at("images/result.png")" style="height: 570px; width: 540px">
+                      <img id="daImage" src="data:image/gif;base64,R0lGODlhEAAOALMAAOazToeHh0tLS/7LZv/0jvb29t/f3//Ub//ge8WSLf/rhf/3kdbW1mxsbP//mf///yH5BAAAAAAALAAAAAAQAA4AAARe8L1Ekyky67QZ1hLnjM5UUde0ECwLJoExKcppV0aCcGCmTIHEIUEqjgaORCMxIC6e0CcguWw6aFjsVMkkIr7g77ZKPJjPZqIyd7sJAgVGoEGv2xsBxqNgYPj/gAwXEQA7" style="height: 570px; width: 540px">
                   </div>
               </div>
           </div>
@@ -110,10 +111,11 @@
       </div>
 
       <!-- wire comet methods -->
-      <iframe src="@routes.Application.rays" style="display:none"></iframe>
+      <!--iframe src="@routes.Application.rays" style="display:none"></iframe-->
+      <iframe src="@routes.Application.image" style="display:none"></iframe>
 
       <footer>
-        <p>&copy; Typesafe 2011</p>
+        <p>&copy; Typesafe 2012</p>
       </footer>
     </div>
 }

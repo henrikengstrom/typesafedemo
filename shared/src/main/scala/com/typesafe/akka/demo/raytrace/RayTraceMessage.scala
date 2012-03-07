@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2011 Typesafe <http://typesafe.com/>
+ *  Copyright (C) 2012 Typesafe <http://typesafe.com/>
  */
 package com.typesafe.akka.demo.raytrace
 

@@ -7,7 +7,7 @@ import Keys._
 
 object TypesafeDemoBuild extends Build {
   val Organization = "com.typesafe.akka.demo"
-  val Version      = "0.6-SNAPSHOT"
+  val Version      = "1.0-SNAPSHOT"
   val ScalaVersion = "2.9.1"
 
   lazy val parentSettings = buildSettings
@@ -101,12 +101,12 @@ object Dependencies {
 
 object Dependency {
   object V {
-    val Akka      = "2.0-SNAPSHOT"
+    val Akka      = "2.0"
     val Scalatest = "1.6.1"
     val Slf4j     = "1.6.0"
-    val Roygbiv   = "0.6-SNAPSHOT"
+    val Roygbiv   = "1.0-SNAPSHOT"
     val Sjson     = "0.11"
-    val Play      = "2.0-RC1-SNAPSHOT"
+    val Play      = "2.0-SNAPSHOT"
     val Protobuf  = "2.4.1"
   }
 
