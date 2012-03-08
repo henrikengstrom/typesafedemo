@@ -8,9 +8,15 @@
     routes.javascript.Application.stop)
 
     <script type="text/javascript" charset="utf-8">
-        var message = function(msg) {
-            $('#daImage').attr('src', 'data:image/jpg;base64,' + msg);
-            //$('#raysPerSecond').text(msg);
+        var image = function(msg) {
+            $('#raytracedImage').attr('src', 'data:image/jpg;base64,' + msg);
+        }
+
+        var statistics = function(msg) {
+            var result = msg.split(",");
+            $('#layerCount').text(result[0]);
+            $('#raysCount').text(result[1]);
+            $('#raysPerSecond').text(result[2]);
         }
 
         function instruct(instruction) {
@@ -76,7 +82,7 @@
                     <h2>Press 'Start' to raytrace an image</h2>
                   </div>
                   <div id="resultImage" align="center" style="height: 500px; width: 400px">
-                      <img id="daImage" src="data:image/gif;base64,R0lGODlhEAAOALMAAOazToeHh0tLS/7LZv/0jvb29t/f3//Ub//ge8WSLf/rhf/3kdbW1mxsbP//mf///yH5BAAAAAAALAAAAAAQAA4AAARe8L1Ekyky67QZ1hLnjM5UUde0ECwLJoExKcppV0aCcGCmTIHEIUEqjgaORCMxIC6e0CcguWw6aFjsVMkkIr7g77ZKPJjPZqIyd7sJAgVGoEGv2xsBxqNgYPj/gAwXEQA7" style="height: 570px; width: 540px">
+                      <img id="raytracedImage" src="data:image/gif;base64,R0lGODlhEAAOALMAAOazToeHh0tLS/7LZv/0jvb29t/f3//Ub//ge8WSLf/rhf/3kdbW1mxsbP//mf///yH5BAAAAAAALAAAAAAQAA4AAARe8L1Ekyky67QZ1hLnjM5UUde0ECwLJoExKcppV0aCcGCmTIHEIUEqjgaORCMxIC6e0CcguWw6aFjsVMkkIr7g77ZKPJjPZqIyd7sJAgVGoEGv2xsBxqNgYPj/gAwXEQA7" style="height: 570px; width: 540px">
                   </div>
               </div>
           </div>
@@ -99,19 +105,19 @@
                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STOP
                   </a>
                   <br><br>
-                  <h4>Number of Clients</h4>
-                  <div id="clientCount">0</div>
+                  <h4>Rays</h4>
+                  <div id="raysCount"></div>
                   <h4>Rays/second</h4>
                   <div id="raysPerSecond"></div>
-                  <h4>Generated Layers</h4>
-                  <div id="layerCount">0</div>
+                  <h4>Layers</h4>
+                  <div id="layerCount"></div>
               </div>
           </div>
         </div>
       </div>
 
       <!-- wire comet methods -->
-      <!--iframe src="@routes.Application.rays" style="display:none"></iframe-->
+      <iframe src="@routes.Application.statistics" style="display:none"></iframe>
       <iframe src="@routes.Application.image" style="display:none"></iframe>
 
       <footer>

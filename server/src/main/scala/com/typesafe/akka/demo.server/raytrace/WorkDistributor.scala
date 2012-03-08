@@ -6,13 +6,16 @@ package com.typesafe.akka.demo.server.raytrace
 import roygbiv.scene.json.JsonSceneLoader
 import roygbiv.scene.{ SceneLoaderOrchestrator, LoadScene, Scene }
 import com.typesafe.akka.demo.raytrace.RayTraceWorkInstruction
-import com.typesafe.akka.demo.{ Stop, Pause, Start, ClientRegistration }
-import akka.actor.{Props, Actor}
+import com.typesafe.akka.demo._
+import akka.actor.{ActorRef, Props, Actor}
 
 class WorkDistributor extends Actor {
-  import WorkDistributor._
+  var scene: Option[Scene] = None
+  var clients: Vector[ActorRef] = Vector()
+  final val Started = 1
+  final val Paused = 2
+  final val Stopped = 3
 
-  // TODO : use Actors as state machine
   var state: Int = _
 
   override def preStart() {
@@ -26,26 +29,25 @@ class WorkDistributor extends Actor {
   def receive = {
     case s: Scene ⇒
       scene = Some(s)
-      context.actorOf(Props[WorkAggregator]) ! s
-    case c: ClientRegistration ⇒
-      clients = c +: clients
-      context.actorFor(c.remoteAddress) !
+      context.actorFor("/user/aggregator")  ! s
+    case ClientRegistration ⇒
+      clients = sender +: clients
+      sender !
         RayTraceWorkInstruction(
           context.system.settings.config.getString("akka.raytracing.aggregator.address"),
           scene.get)
-      if (state == Started) context.actorFor(c.remoteAddress) ! Start
-    case "Start" ⇒
-      println("*** server started")
+      if (state == Started) sender ! Start
+    case Start ⇒
+      println("*** STARTING")
       state = Started
-      for (c ← clients) context.actorFor(c.remoteAddress) ! Start
-    case "Pause" ⇒
-      println("*** server paused")
+      for (c ← clients) c ! Start
+    case Pause ⇒
       state = Paused
-      for (c ← clients) context.actorFor(c.remoteAddress) ! Pause
-    case "Stop" ⇒
-      println("*** server stopped")
+      for (c ← clients) c ! Pause
+    case Stop ⇒
+      println("*** STOPPING")
       state = Stopped
-      for (c ← clients) context.actorFor(c.remoteAddress) ! Stop
+      for (c ← clients) c ! Stop
   }
 
   private def loadScene() = {
@@ -53,12 +55,4 @@ class WorkDistributor extends Actor {
     loader ! LoadScene(JsonSceneLoader.SceneType,
       context.system.settings.config.getString("akka.raytracing.scene-definition"))
   }
-}
-
-object WorkDistributor {
-  var scene: Option[Scene] = None
-  var clients: Vector[ClientRegistration] = Vector()
-  final val Started = 1
-  final val Paused = 2
-  final val Stopped = 3
 }

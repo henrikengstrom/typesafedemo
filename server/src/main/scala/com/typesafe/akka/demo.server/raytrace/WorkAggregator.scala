@@ -9,39 +9,32 @@ import roygbiv.color.RGBColor
 import collection.mutable.ArrayBuffer
 
 import java.awt.image.{BufferedImage ⇒ JBufferedImage}
-import java.io.{File ⇒ JFile}
-import javax.imageio.{ImageIO ⇒ JImageIO}
 import roygbiv.scene.Scene
-import com.typesafe.akka.demo.{Start, WorkResult}
 import java.util.concurrent.TimeUnit
 import akka.util.Duration
 import akka.actor.{ActorRef, Cancellable, Actor}
 import javax.swing.ImageIcon
+import com.typesafe.akka.demo.{RenderingStatistics, ClientRegistration, Start, WorkResult}
 
 case object GenerateImage
 
 class WorkAggregator extends Actor {
-
-  import WorkAggregator._
-
   var scheduled: Option[Cancellable] = None
+  var previousLayers = 0L
   var buffer = new ArrayBuffer[RGBColor]()
-  var resultCounter = 0
-  var previousResultNumber = 0
-
-  var startTime: Long = 0L
-  var raysPerSecond: Long = 0L
+  var scene: Option[Scene] = None
+  var clients = Seq[ActorRef]()
+  var startTime = 0L
   var rays = 0L
-
-  var webClient: Option[ActorRef] = None
-  
+  var layers = 0
+  var rayPayload = 0L
+    
   override def preStart() {
     if (scheduled.isEmpty) {
-      val conf = context.system.settings.config
       val cancellable =
         context.system.scheduler.schedule(
-          Duration(conf.getMilliseconds("akka.raytracing.image.generation-frequency"), TimeUnit.MILLISECONDS),
-          Duration(conf.getMilliseconds("akka.raytracing.image.generation-frequency"), TimeUnit.MILLISECONDS),
+          Duration(context.system.settings.config.getMilliseconds("akka.raytracing.image.generation-frequency"), TimeUnit.MILLISECONDS),
+          Duration(context.system.settings.config.getMilliseconds("akka.raytracing.image.generation-frequency"), TimeUnit.MILLISECONDS),
           self,
           GenerateImage)
       scheduled = Some(cancellable)
@@ -53,13 +46,18 @@ class WorkAggregator extends Actor {
   }
 
   def receive = {
-    case result: WorkResult ⇒ applyResult(result)
+    case s: Scene =>
+      println("****** SETTING SCENE IN ACTOR : " + self)
+      startTime = System.nanoTime
+      scene = Some(s)
+      rayPayload = s.camera.screenWidth * s.camera.screenHeight
+    case result: WorkResult ⇒ 
+      println("****** GOT RESULT FROM: " + result.workerId)
+      applyResult(result)
     case GenerateImage ⇒ generateImage()
-    case s: Scene ⇒ scene = Some(s)
-    case "Start" ⇒ startTime = System.nanoTime
-    case "WebReceiver" =>
-      // TODO : add a list of listeners/subscribers
-      webClient = Some(sender)
+    case client: ActorRef => 
+      println("****** ADDING CLIENT: " + client)
+      clients = client +: clients
   }
 
   def applyResult(result: WorkResult) = result match {
@@ -80,33 +78,42 @@ class WorkAggregator extends Actor {
         })
       }
 
-      resultCounter += 1
-      rays = (scene.get.camera.screenWidth * scene.get.camera.screenHeight) * resultCounter
-      raysPerSecond = rays / ((System.nanoTime - startTime) / 1000000000)
+      rays = rays + rayPayload
+      layers = layers + 1
 
-      println("*** RESULTS DELIVERED: " + resultCounter)
-      println("*** RAYS CALCULATED  : " + rays)
-      println("*** RAYS/SECOND      : " + raysPerSecond)
-
-      // Update clients
-      println("*** sending result to: " + webClient)
-      for (web <- webClient) web ! raysPerSecond
+      val raysPerSecond = rays / ((System.nanoTime - startTime) / 1000000000)
+      pushResult(RenderingStatistics(layers, rays, raysPerSecond))
   }
 
   def generateImage() {
-    if (resultCounter > previousResultNumber) {
+    if (layers > previousLayers && buffer.size != 0) {
+      previousLayers = layers
       val camera = scene.get.camera
-      previousResultNumber = resultCounter
-      val scale = 1.0f / resultCounter
+      val scale = 1.0f / layers           
       val image = new JBufferedImage(camera.screenWidth, camera.screenHeight, JBufferedImage.TYPE_INT_RGB)
       image.setRGB(0, 0, camera.screenWidth, camera.screenHeight, buffer.map(color ⇒ (color * scale).asInt).toArray, 0, camera.screenWidth)
-      //val file = new JFile(context.system.settings.config.getString("akka.raytracing.image.name"))
-      //JImageIO.write(image, "png", file)
-      for (web <- webClient) web ! new ImageIcon(image)
+      pushResult(new ImageIcon(image))
     }
   }
-}
 
-object WorkAggregator {
-  var scene: Option[Scene] = None
+  def pushResult(result: Any) = {
+    def pushToClient(client: ActorRef, result: Any) = {
+      try {
+        println("*** pushing result to client: " + client)
+        client ! result
+      } catch {
+        case e: Exception =>
+          // Simplistic/naive error handing -
+          // just remove from client from clients since we could not communicate with it.
+          // Should be more forgiving in a real-app situation.
+          println("*********************************************************")
+          println("--> REMOVING CLIENT: " + client)
+          println("--> EXCEPTION      : " + e.toString)
+          println("*********************************************************")
+          clients = clients.filterNot(_ == client)
+      }
+    }
+
+    for (client <- clients) pushToClient(client, result)
+  }
 }

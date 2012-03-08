@@ -6,7 +6,8 @@ trait Message
 // *** LIFE CYCLE MESSAGES ***
 // ***************************
 
-case class ClientRegistration(remoteAddress: String) extends Message
+// Used to register a client - the sender of the message
+case object ClientRegistration extends Message
 
 // Used to pause the client - keeps state
 case object Pause extends Message
@@ -33,3 +34,5 @@ trait WorkResult extends Message {
 }
 
 case object ClientInfo extends Message
+
+case class RenderingStatistics(resultCounter: Int, totalRays: Long, raysPerSecond: Long)

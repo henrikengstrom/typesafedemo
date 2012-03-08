@@ -23,11 +23,12 @@ class Worker extends Actor {
       aggregatorServer = server
       scene = Some(theScene)
     case Start ⇒
+      println("*** starting client...")
       if (scene.isDefined) {
         // Start as many workers as there are cores on the machine (to optimize power)
         // Each of the workers get a pinned dispatcher: http://akka.io/docs/akka/2.0-M1/scala/dispatchers.html
         1 until availableProcessors foreach { i =>
-          val worker = context.actorOf(Props[RayTracer].withDispatcher("client-dispatcher"), "worker" + i)
+          val worker = context.actorOf(Props[RayTracer].withDispatcher("client-dispatcher"))
           worker ! new roygbiv.worker.Work(scene.get)
           workerHandles = worker +: workerHandles
         }
@@ -36,10 +37,12 @@ class Worker extends Actor {
       // TODO (HE) : Handle
       //workerHandles.foreach(handle ⇒ handle ! roygbiv.worker.Pause)
     case Stop ⇒
+      println("*** stopping client...")
       workerHandles.foreach(handle ⇒ handle ! PoisonPill)
       workerHandles = Vector()
       self ! PoisonPill
     case wr: WorkResult ⇒
+      println("*** publishing result to : " + aggregatorServer)
       context.actorFor(aggregatorServer) ! RayTraceWorkResult(wr.workerId, availableProcessors, wr.result)
     case other ⇒
     // TODO (HE): Log
@@ -47,5 +50,5 @@ class Worker extends Actor {
 }
 
 object Worker {
-  val availableProcessors = 2 //Runtime.getRuntime.availableProcessors
+  val availableProcessors = Runtime.getRuntime.availableProcessors
 }
